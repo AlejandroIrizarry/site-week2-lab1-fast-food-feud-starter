@@ -1,6 +1,11 @@
 // IMPORT ANY NEEDED COMPONENTS HERE
+import { useState } from "react"
 import { Dataset } from "./data/dataset"
 import "./App.css"
+import Header from "./components/Header/Header"
+import Instructions from "./components/Instructions/Instructions"
+import Chip from "./components/Chip/Chip"
+import NutritionalLabel from "./components/NutritionalLabel/NutritionalLabel"
 
 // don't move this!
 export const appInfo = {
@@ -20,6 +25,23 @@ export const appInfo = {
 
 export function App() {
   const { data, categories, restaurants } = Dataset.createDataSet()
+  const [selectedCategory, setSelectedCategory] = useState(null)
+  const [selectedRestaurant, setSelectedRestaurant] = useState(null)
+  const [selectedItem, setSelectedItem] = useState(null)
+
+  const selectCategory = (category) => {
+    setSelectedItem(null)
+    setSelectedCategory(category)
+  }
+
+  const selectRestaurant = (restaurant) => {
+    setSelectedItem(null)
+    setSelectedRestaurant(restaurant)
+  }
+
+  const currentMenuItems = data.filter((item) => {
+    return item.food_category === selectedCategory && item.restaurant === selectedRestaurant
+  })
 
   return (
     <main className="App">
@@ -27,7 +49,16 @@ export function App() {
       <div className="CategoriesColumn col">
         <div className="categories options">
           <h2 className="title">Categories</h2>
-          {/* YOUR CODE HERE */}
+          {categories.map((category) => {
+            return (
+            <Chip 
+            key={category}
+            label={category}
+            onClick={() => selectCategory(category)}
+            isActive={selectedCategory === category}
+            />
+            )
+          })}
         </div>
       </div>
 
@@ -38,7 +69,17 @@ export function App() {
         {/* RESTAURANTS ROW */}
         <div className="RestaurantsRow">
           <h2 className="title">Restaurants</h2>
-          <div className="restaurants options">{/* YOUR CODE HERE */}</div>
+          <div className="restaurants options">{restaurants.map((restaurant) => {
+          return (
+            <Chip 
+            key={restaurant}
+            label={restaurant}
+            onClick={() => selectRestaurant(restaurant)}
+            isActive={selectedRestaurant === restaurant}
+            />
+            )
+          })}
+          </div>
         </div>
 
         {/* INSTRUCTIONS GO HERE */}
@@ -47,11 +88,22 @@ export function App() {
         <div className="MenuDisplay display">
           <div className="MenuItemButtons menu-items">
             <h2 className="title">Menu Items</h2>
-            {/* YOUR CODE HERE */}
+            {currentMenuItems.map((item, index) => {
+              return (
+                <Chip 
+                key={`${item.item_name}-${index}`}
+                label={item.item_name}
+                onClick={() => setSelectedItem(item)}
+                isActive={selectedItem && selectedItem.item_name === item.item_name}
+                />
+              )
+            })}
           </div>
 
           {/* NUTRITION FACTS */}
-          <div className="NutritionFacts nutrition-facts">{/* YOUR CODE HERE */}</div>
+          <div className="NutritionFacts nutrition-facts">
+            {selectedItem ? <NutritionalLabel item={selectedItem} /> : null}
+          </div>
         </div>
 
         <div className="data-sources">
